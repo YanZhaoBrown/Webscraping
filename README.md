@@ -36,6 +36,15 @@ Follow the layout of the dunkin donuts scrape.
 Essentially this allows for you work to be updated over time by running one R file and it generates a new html file. With this set up, I could go ahead and have my document updated every second, hour, day or week. 
 
 
+
+## Some ideas for data:
+
+- [State of the Union speeches](https://pradeepadhokshaja.wordpress.com/2017/03/31/scraping-the-web-for-presdential-inaugural-addresses-using-rvest/)
+- Scrape tweets using [`twitteR`](https://www.credera.com/blog/business-intelligence/twitter-analytics-using-r-part-1-extract-tweets/)
+- [indeed](https://medium.com/@msalmon00/web-scraping-job-postings-from-indeed-96bd588dcb4b)
+- [Further examples](https://towardsdatascience.com/learn-to-create-your-own-datasets-web-scraping-in-r-f934a31748a5)
+
+
 ## Tips
 
 - Clone this github repository
