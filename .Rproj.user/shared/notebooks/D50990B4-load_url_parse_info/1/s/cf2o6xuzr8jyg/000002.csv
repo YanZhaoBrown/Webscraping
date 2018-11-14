@@ -1,0 +1,42 @@
+"0","session_g=html_session(""http://www.google.com"")"
+"0","search_g <- html_form(session_g)[[1]]"
+"0","search_g"
+"1","<form> '"
+"1","f"
+"1","' ("
+"1","GET"
+"1"," "
+"1","/search"
+"1",")
+"
+"1","  <input hidden> 'ie': ISO-8859-1
+  <input hidden> 'hl': en
+  <input hidden> 'source': hp
+  <input hidden> 'biw': 
+  <input hidden> 'bih': 
+  <input text> 'q': 
+  <input submit> 'btnG': Google Search
+  <input submit> 'btnI': I'm Feeling Lucky
+  <input hidden> 'gbv': 1"
+"1","
+"
+"0","filled_form=set_values(search_g, q = ""My little pony"")"
+"0","submit_form(html_session(""http://www.google.com""),filled_form)"
+"2","Submitting with 'btnG'
+"
+"1","<session> "
+"1","http://www.google.com/search?ie=ISO-8859-1&hl=en&source=hp&q=My%20little%20pony&btnG=Google%20Search&gbv=1"
+"1","
+"
+"1","  Status: "
+"1","200"
+"1","
+"
+"1","  Type:   "
+"1","text/html; charset=ISO-8859-1"
+"1","
+"
+"1","  Size:   "
+"1","50882"
+"1","
+"

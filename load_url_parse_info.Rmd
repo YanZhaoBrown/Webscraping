@@ -19,12 +19,32 @@ library("rvest")
 library("httr")
 query = "data science"
 loc = "Providence"
-session <- html_session("https://www.indeed.com/jobs")
+session <- html_session("https://www.indeed.com")
 form <- html_form(session)[[1]]
+form
 ## However, still can not solve this one
-filled_form <- set_values(form, q = query, l = loc)
 
-session1 <- submit_form(session, filled_form)
+## filled_form <- set_values(form, q = query, l = loc)
+## session1 <- submit_form(session, filled_form)
+
+```
+```{r}
+session_g=html_session("http://www.google.com")
+search_g <- html_form(session_g)[[1]]
+search_g
+## We can see there is a row below called /<input text> 'q':/ so that we use q =
+filled_form=set_values(search_g, q = "My little pony")
+submit_form(html_session("http://www.google.com"),filled_form)
+```
+
+
+
+```{r}
+session_lol=html_session("http://na.op.gg/")
+search <- html_form(session_lol)[[1]]
+search
+filled_form_lol=set_values(search, userName = "NepValdTune")
+submit_form(session_lol,filled_form_lol)
 
 ```
 
