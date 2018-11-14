@@ -1,0 +1,52 @@
+---
+title: "Scraping_Airline_Data_Outline"
+author: "Augustus Ge"
+date: "November 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# We are hoping to help Brown University students who are looking to go on a winter vacation but cannot decide where to go. This will scrape flight options data to 10 popular vacation destinations and allow the user to view all relevant options with variables destination, price, duration, stops, rating, arline, airline company reviews (Tripadvisor), departure time, and arrival time.
+
+# Initial query for flight 
+
+```{r}
+library(rvest)
+library(httr)
+session <- html_session("https://www.expedia.com/")
+query1 <- "Boston, MA (BOS-All Airports)"
+query2 <- "New York, NY (JFK-John F. Kennedy Intl.)"
+query3 <- "12/12/2018"
+form <- html_form(session)[[1]]
+filled_form <- set_values(form, query1, query2)
+
+session1 <- submit_form(session, filled_form)
+```
+
+```{r}
+
+query = "data science"
+loc = "Providence"
+session <- html_session("https://www.indeed.com/jobs")
+form <- html_form(session)[[1]]
+filled_form <- set_values(form, q = query, l = loc)
+
+session1 <- submit_form(session, filled_form)
+
+```
+
+
+```{r}
+library(xml2)
+library(rvest)
+url <- "https://www.indeed.com/jobs?q=data+science&l=Providence%2C+RI"
+webpage <- read_html(url)
+# data <- dataframe(webpage)
+# print(webpage)
+html_nodes(html_attr(css = ))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
