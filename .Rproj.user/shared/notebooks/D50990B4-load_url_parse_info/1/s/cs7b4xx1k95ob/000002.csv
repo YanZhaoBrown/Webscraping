@@ -1,0 +1,3 @@
+"0","text = html_text(html_node(webpage_nyc, css = "".standard-padding""))"
+"0","text2 = gsub(""\n"","""", text)"
+"0","data.frame(text2)"

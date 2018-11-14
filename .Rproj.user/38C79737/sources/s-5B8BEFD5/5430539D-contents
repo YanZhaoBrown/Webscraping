@@ -1,0 +1,63 @@
+
+1. Read the HTML content of the following URL with a variable called webpage: https://money.cnn.com/data/us_markets/ At this point, it will also be useful to open this web page in your browser.
+```{r}
+library("rvest")
+library("httr")
+webpage=read_html("https://money.cnn.com/data/us_markets/")
+webpage
+```
+2. Get the session details (status, type, size) of the above mentioned URL.
+```{r}
+session=html_session("https://money.cnn.com/data/us_markets/")
+session
+```
+3. Extract all of the sector names from the "stock Sectors"" table (bottom left of the web page.)
+```{r}
+tables=webpage %>%
+  html_nodes(css="table")%>%
+  html_table(fill=TRUE)
+tables
+```
+
+```{r}
+tables[[2]][,1]
+```
+
+4. Extract all of the "3 Month % Change"" values from the "stock Sectors" table.
+```{r}
+tables[[2]][,2]
+```
+5. Extract the table "what's Moving" (top middle of the web page) into a data-frame.
+```{r}
+wm_df=data.frame(tables[[1]])
+wm_df
+```
+6. Re-construct all of the links from the first column of the ¡°what's Moving" table.
+Hint: the base URL is "https://money.cnn.com"
+```{r}
+url="https://money.cnn.com"
+paste(url,html_attr(html_nodes(webpage,"td .wsod_symbol"),"href"))
+```
+7. Extract the titles under the "latest News"" section (bottom middle of the web page.)
+```{r}
+  news_node=html_nodes(webpage,css="#section_latestnews li")
+  html_text(news_node)
+```
+8. To understand the structure of the data in a web page, it is often useful to know what the underlying attributes are of the text you see.
+
+Extract the attributes (and their values) of the HTML element that holds the timestamp underneath the ¡±What's Moving" table.
+```{r}
+news_node=html_nodes(webpage,css=".wsod_disclaimer span")
+html_attrs(news_node)
+```
+9. Extract the values of the blue percentage-bars from the "Trending Tickers"" table (bottom right of the web page.)
+```{r}
+news_node=html_nodes(webpage,css=".scale div")
+html_attr(news_node,"class")
+```
+Hint: in this case, the values are stored under the "class" attribute.
+10. Get the links of all of the "svg" images on the web page.
+```{r}
+news_node=html_nodes(webpage,css="img[src$='svg']")
+html_attr(news_node,"src")
+```

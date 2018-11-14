@@ -1,0 +1,11 @@
+"0","##  We should load the package of those 2 so that we can use function "" html_session"""
+"0","library(""rvest"")"
+"0","library(""httr"")"
+"0","query = ""data science"""
+"0","loc = ""Providence"""
+"0","session <- read_html(""https://www.indeed.com/jobs"")"
+"0","form <- html_form(session)[[1]]"
+"0","## However, still can not solve this one"
+"0","filled_form <- set_values(form, q = query, l = loc)"
+"2","Error: Unknown field names: q, l
+"
