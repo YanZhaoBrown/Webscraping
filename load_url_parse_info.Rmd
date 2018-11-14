@@ -49,4 +49,44 @@ webpage <- read_html(url)
 html_nodes(html_attr(css = ))
 ```
 
+```{r}
+
+library(xml2)
+library(rvest)
+
+url_nyc <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ANew+York%2C+NY+%28JFK-John+F.+Kennedy+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY&fareCalendarPrice=1819"
+webpage_nyc <- read_html(url_nyc)
+
+url_tyo <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ATokyo%2C+Japan+%28HND-Haneda%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_tyo <- read_html(url_tyo)
+
+url_mex <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AMexico+City%2C+Distrito+Federal%2C+Mexico+%28MEX-Mexico+City+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_mex <- read_html(url_mex)
+
+url_nas <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ANassau%2C+Bahamas+%28NAS-Nassau+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_nas <- read_html(url_nas)
+
+url_bei <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ABeijing%2C+China+%28PEK-Capital+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_bei <- read_html(url_bei)
+
+url_par <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AParis%2C+France+%28CDG-Roissy-Charles+de+Gaulle%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_par <- html(url_par)
+
+url_lon <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ALondon%2C+England%2C+UK+%28LHR-Heathrow%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_lon <- html(url_lon)
+
+url_bcn <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ABarcelona%2C+Spain+%28BCN-Barcelona+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_bcn <- html(url_bcn)
+
+url_lax <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ALos+Angeles%2C+CA+%28LAX-Los+Angeles+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_lax <- html(url_lax)
+
+url_hkg <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AHong+Kong%2C+Hong+Kong+SAR+%28HKG-Hong+Kong+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
+webpage_hkg <- html(url_hkg)
+
+```
+
+
+
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
