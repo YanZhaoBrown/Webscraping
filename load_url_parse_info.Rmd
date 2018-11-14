@@ -14,19 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # Initial query for flight 
 
 ```{r}
-library(rvest)
-library(httr)
-session <- html_session("https://www.expedia.com/")
-query1 <- "Boston, MA (BOS-All Airports)"
-query2 <- "New York, NY (JFK-John F. Kennedy Intl.)"
-query3 <- "12/12/2018"
-form <- html_form(session)[[1]]
-filled_form <- set_values(form, query1, query2)
-
-session1 <- submit_form(session, filled_form)
-```
-
-```{r}
 
 query = "data science"
 loc = "Providence"
@@ -38,16 +25,6 @@ session1 <- submit_form(session, filled_form)
 
 ```
 
-
-```{r}
-library(xml2)
-library(rvest)
-url <- "https://www.indeed.com/jobs?q=data+science&l=Providence%2C+RI"
-webpage <- read_html(url)
-# data <- dataframe(webpage)
-# print(webpage)
-html_nodes(html_attr(css = ))
-```
 
 ```{r}
 
@@ -70,23 +47,25 @@ url_bei <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F
 webpage_bei <- read_html(url_bei)
 
 url_par <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AParis%2C+France+%28CDG-Roissy-Charles+de+Gaulle%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_par <- html(url_par)
+webpage_par <- read_html(url_par)
 
 url_lon <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ALondon%2C+England%2C+UK+%28LHR-Heathrow%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_lon <- html(url_lon)
+webpage_lon <- read_html(url_lon)
 
 url_bcn <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ABarcelona%2C+Spain+%28BCN-Barcelona+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_bcn <- html(url_bcn)
+webpage_bcn <- read_html(url_bcn)
 
 url_lax <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ALos+Angeles%2C+CA+%28LAX-Los+Angeles+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_lax <- html(url_lax)
+webpage_lax <- read_html(url_lax)
 
 url_hkg <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AHong+Kong%2C+Hong+Kong+SAR+%28HKG-Hong+Kong+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_hkg <- html(url_hkg)
+webpage_hkg <- read_html(url_hkg)
 
 ```
 
 
-
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+text = html_text(html_node(webpage_nyc, css = ".standard-padding"))
+text2 = gsub("\n","", text)
+data.frame(text2)
+```
