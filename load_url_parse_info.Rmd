@@ -66,6 +66,6 @@ webpage_hkg <- read_html(url_hkg)
 
 ```{r}
 text = html_text(html_node(webpage_nyc, css = ".standard-padding"))
-text2 = gsub("\n","", text)
-data.frame(text2)
+text1 = gsub("\n","", text)
+data.frame(text1)
 ```
