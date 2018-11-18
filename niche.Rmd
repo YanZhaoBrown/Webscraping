@@ -119,12 +119,26 @@ get_data <- function(name){
   webpages <- read_html(url2)
   name_data <- html_text(html_nodes(webpages, ".postcard__title" ))  
   ACT_data <- html_text(html_nodes(webpages, "#admissions .scalar--three:nth-child(2) .scalar__value span" ))
+  SAT_data <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span"))
+  app_fee <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span"))
+  ACT_SAT_req <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(4) > div.scalar__value > span"))
+  ed_ea <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span"))
+  app_deadline <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span"))
+  undergrad_pop <- html_text(html_nodes(webpages, css = "#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)"))
+  
   url_review <- str_c(url2,"/reviews/")
   webpage2<- read_html(url_review)
   review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
   print(name_data)
   print(ACT_data)
+  print(SAT_data)
+  print(app_fee)
+  print(app_deadline)
+  print(ACT_SAT_req)
+  print(ed_ea)
+  print(undergrad_pop)
   print(review_data)
+  
   
   
 }
@@ -135,8 +149,6 @@ get_data <- function(name){
 
 ```{r}
 get_data("brown-university") 
-
-
 
 ```
 
