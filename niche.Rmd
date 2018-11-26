@@ -9,11 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# We are hoping to help Brown University students who are looking to go on a winter vacation but cannot decide where to go. This will scrape flight options data to 10 popular vacation destinations and allow the user to view all relevant options with variables destination, price, duration, stops, rating, arline, airline company reviews (Tripadvisor), departure time, and arrival time.
-
-# Initial query for flight 
-
-
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
@@ -29,6 +24,7 @@ get_names=function(a){
      names=c(names, name_data)
   }
   names=str_replace_all(names," ","-")
+  names=str_replace_all(names, "&", "-and-")
   return(names)
 }
 get_names(4)
@@ -135,7 +131,7 @@ df <- data.frame(matrix(nrow = 100, ncol = 13))
 # name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data
 colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ACT/SAT Required",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
 
-for(i in 1:length(get_names(4))){
+for(i in 1:100){
   df[i,] <- (get_data(get_names(4)[i]))
 }
 
