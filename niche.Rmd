@@ -13,88 +13,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Initial query for flight 
 
-```{r}
-library(rvest)
-library(httr)
-session <- html_session("https://www.expedia.com/")
-query1 <- "Boston, MA (BOS-All Airports)"
-query2 <- "New York, NY (JFK-John F. Kennedy Intl.)"
-query3 <- "12/12/2018"
-form <- html_form(session)[[1]]
-filled_form <- set_values(form, query1, query2, query3)
 
-session1 <- submit_form(session, filled_form)
-```
-
-```{r}
-
-query = "data science"
-loc = "Providence"
-session <- html_session("https://www.indeed.com/jobs")
-form <- html_form(session)[[1]]
-filled_form <- set_values(form, q = query, l = loc)
-
-session1 <- submit_form(session, filled_form)
-
-```
-
-```{r}
-library(xml2)
-library(rvest)
-
-url_nyc <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ANew+York%2C+NY+%28JFK-John+F.+Kennedy+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY&fareCalendarPrice=1819"
-webpage_nyc <- read_html(url_nyc)
-
-url_tyo <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ATokyo%2C+Japan+%28HND-Haneda%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_tyo <- read_html(url_tyo)
-
-url_mex <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AMexico+City%2C+Distrito+Federal%2C+Mexico+%28MEX-Mexico+City+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_mex <- read_html(url_mex)
-
-url_nas <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ANassau%2C+Bahamas+%28NAS-Nassau+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_nas <- read_html(url_nas)
-
-url_bei <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ABeijing%2C+China+%28PEK-Capital+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_bei <- read_html(url_bei)
-
-url_par <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AParis%2C+France+%28CDG-Roissy-Charles+de+Gaulle%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_par <- read_html(url_par)
-
-url_lon <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ALondon%2C+England%2C+UK+%28LHR-Heathrow%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_lon <- html(url_lon)
-
-url_bcn <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ABarcelona%2C+Spain+%28BCN-Barcelona+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_bcn <- read_html(url_bcn)
-
-url_lax <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3ALos+Angeles%2C+CA+%28LAX-Los+Angeles+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_lax <- read_html(url_lax)
-
-url_hkg <- "https://www.expedia.com/Flights-Search?flight-type=on&starDate=12%2F21%2F2018&mode=search&trip=oneway&leg1=from%3ABoston%2C+MA+%28BOS-Logan+Intl.%29%2Cto%3AHong+Kong%2C+Hong+Kong+SAR+%28HKG-Hong+Kong+Intl.%29%2Cdeparture%3A12%2F21%2F2018TANYT&passengers=children%3A0%2Cadults%3A1%2Cseniors%3A0%2Cinfantinlap%3AY"
-webpage_hkg <- read_html(url_hkg)
-
-```
-
-```{r}
-library(xml2)
-library(rvest)
-library(stringr)
-url <- "https://www.imdb.com/search/title?count=100&release_date=2016,2016&title_type=feature"
-webpage1 <- read_html(url)
-# data <- dataframe(webpage)
-# print(webpage)
-rank_data <- html_text(html_nodes(webpage1, ".text-primary" ))
-title_data<- html_text(html_nodes(webpage1, ".lister-item-header a" ))
-description_data<-html_text(html_nodes(webpage1, ".ratings-bar+ .text-muted" ))
-description_data<-gsub("\n","",description_data)
-runtime_data<-  html_text(html_nodes(webpage1, ".runtime" ))
-rating_data <- html_text(html_nodes(webpage1, ".ratings-imdb-rating strong" ))
-rating_data<-as.numeric(rating_data)
-director_data<-html_text(html_nodes(webpage1, ".lister-item-content a:nth-child(1)"))
-metascore_data<-html_text(html_nodes(webpage1, ".metascore"))
-metascore_data
-```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+
+get_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  names=str_replace_all(names," ","-")
+  return(names)
+}
+get_names(4)
+
+```
+
 ```{r}
 url<-"https://www.niche.com/colleges/stanford-university/"
 webpage1 <- read_html(url)
@@ -110,6 +50,7 @@ review_data
 
 ```
 
+
 ```{r}
 
 
@@ -119,31 +60,53 @@ get_data <- function(name){
   webpages <- read_html(url2)
   name_data <- html_text(html_nodes(webpages, ".postcard__title" ))  
   ACT_data <- html_text(html_nodes(webpages, "#admissions .scalar--three:nth-child(2) .scalar__value span" ))
+  if(length(ACT_data) == 0) ACT_data <- NA
   SAT_data <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span"))
+  if(length(SAT_data) == 0) SAT_data <- NA
   app_fee <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span"))
+  if(length(app_fee) == 0) app_fee <- NA
   ACT_SAT_req <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(4) > div.scalar__value > span"))
+  if(length(ACT_SAT_req) == 0) ACT_SAT_req <- NA
   ed_ea <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span"))
+  if(length(ed_ea) == 0) ed_ea <- NA
   app_deadline <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span"))
+  if(length(app_deadline) == 0) app_deadline <- NA
   undergrad_pop <- html_text(html_nodes(webpages, css = "#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)"))
+  if(length(undergrad_pop) == 0) undergrad_pop <- NA
+    acceptance_data <- html_text(html_nodes(webpages, "#admissions .profile__bucket--1 .scalar__value span" ))
+    if(length(acceptance_data) == 0) acceptance_data <- NA
+  annualtuition_data <- html_text(html_nodes(webpages, "#cost .scalar__value span:nth-child(1)" ))
+    if(length(annualtuition_data) == 0) annualtuition_data <- NA
+  link_data <-  html_text(html_nodes(webpages, ".profile__website__link" ))
+    if(length(link_data) == 0) link_data <- NA
+  SFRatio_data <- html_text(html_nodes(webpages, ".profile-grade+ .scalar--three .scalar__value span" ))
+    if(length(SFRatio_data) == 0) SFRatio_data <- NA
+  Eve_data <- html_text(html_nodes(webpages, "#academics .scalar--three+ .scalar--three .scalar__value span" ))
   
   url_review <- str_c(url2,"/reviews/")
   webpage2<- read_html(url_review)
   review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
-  print(name_data)
-  print(ACT_data)
-  print(SAT_data)
-  print(app_fee)
-  print(app_deadline)
-  print(ACT_SAT_req)
-  print(ed_ea)
-  print(undergrad_pop)
-  print(review_data)
   
+  url_review <- str_c(url2,"/reviews/")
+  webpage2<- read_html(url_review)
+  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
+  # print(name_data)
+  # print(ACT_data)
+  # print(SAT_data)
+  # print(ACT_SAT_req)
+  # print(ed_ea)
+  # print(app_fee)
+  # print(app_deadline)
+  # print(undergrad_pop)
+  # print(acceptance_data)
+  # print(annualtuition_data)
+  # print(link_data)
+  # print(SFRatio_data)
+  # print(Eve_data)
+  # print(review_data)
   
-  
+  return(c(name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data))
 }
-
-
 
 ```
 
@@ -164,6 +127,18 @@ url1 <-"https://www.niche.com/colleges"
   webpages1 <- read_html(url3)
   name_data2 <- html_text(html_nodes(webpages1, ".postcard__title" ))  
   
+```
+
+```{r}
+# Initialize data frame
+df <- data.frame(matrix(nrow = 100, ncol = 13))
+# name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data
+colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ACT/SAT Required",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
+
+for(i in 1:length(get_names(4))){
+  df[i,] <- (get_data(get_names(4)[i]))
+}
+
 ```
 
 
