@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ```{r}
-
+# Run Second
 get_names=function(a){
   names=vector(length=0,mode="character")
   for(i in 1:a){
@@ -32,6 +32,7 @@ get_names(4)
 ```
 
 ```{r}
+# Run Third
 get_real_names=function(a){
   names=vector(length=0,mode="character")
   for(i in 1:a){
@@ -45,24 +46,10 @@ get_real_names=function(a){
 }
 ```
 
-```{r}
-url<-"https://www.niche.com/colleges/stanford-university/"
-webpage1 <- read_html(url)
-
-
-name_data <- html_text(html_nodes(webpage1, ".postcard__title" ))
-ACT_data <- html_text(html_nodes(webpage1, "#admissions .scalar--three:nth-child(2) .scalar__value span" ))
-
-url_review <- str_c(url,"/reviews/")
-webpage2<- read_html(url_review)
-review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
-review_data
-
-```
 
 
 ```{r}
-
+# Run First
 
 get_data <- function(name){
   url1 <-"https://www.niche.com/colleges"
@@ -75,8 +62,6 @@ get_data <- function(name){
   if(length(SAT_data) == 0) SAT_data <- NA
   app_fee <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span"))
   if(length(app_fee) == 0) app_fee <- NA
-  ACT_SAT_req <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(4) > div.scalar__value > span"))
-  if(length(ACT_SAT_req) == 0) ACT_SAT_req <- NA
   ed_ea <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span"))
   if(length(ed_ea) == 0) ed_ea <- NA
   app_deadline <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span"))
@@ -115,41 +100,42 @@ get_data <- function(name){
   # print(Eve_data)
   # print(review_data)
   
-  return(c(name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data))
+  return(c(name_data, ACT_data, SAT_data, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data))
 }
 
 ```
 
 ```{r}
-get_data("brown-university") 
+get_data("harvard-university") 
 
 ```
 
-```{r}
-name_data<-c()
 
-url1 <-"https://www.niche.com/colleges"
-  url2 <- str_c(url1,"/","brandeis-university","/")
-  webpages <- read_html(url2)
-  name_data1 <- html_text(html_nodes(webpages, ".postcard__title" ))  
-  
-  url3 <- str_c(url1,"/","brown-university","/")
-  webpages1 <- read_html(url3)
-  name_data2 <- html_text(html_nodes(webpages1, ".postcard__title" ))  
-  
-```
 
 ```{r}
+# Run Fourth
 # Initialize data frame
-df <- data.frame(matrix(nrow = 100, ncol = 13))
+df <- data.frame(matrix(nrow = 100, ncol = 12))
 # name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data
-colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ACT/SAT Required",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
+colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
 
 for(i in 1:100){
   df[i,] <- (get_data(get_names(4)[i]))
 }
-
+ 
+# Name the schools properly. Initial data frame creation has unwanted some strings
 df$School <- get_real_names(4)
 ```
 
+```{r}
+# Run Fifth
+# Switch app_deadline and acceptance_data in these rows
+# For some reason on these schools the 7th and the 9th variable have swapped css
+seq_vec <- c(11, 15, 17, 18, 33, 35, 43, 50, 58, 66, 82, 83, 85, 87, 97, 100)
+temp <- df[seq_vec, 6]
+df[seq_vec, 6] <- df[seq_vec, 8]
+df[seq_vec, 8] <- temp
+
+  
+```
 
