@@ -4,7 +4,13 @@ author: "Augustus Ge"
 date: "November 26, 2018"
 output: html_document
 ---
+
+This document takes the data from our dataframe and creates several visuals that may be useful or interesting. 
+
 ```{r}
+
+df <- df_plot
+
 # Data prepping
 # Grouping schools in ranking by 5s
 ACT_MIN_by_5s <- vector()
