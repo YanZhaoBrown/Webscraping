@@ -1,0 +1,149 @@
+---
+title: "webscraping_niche"
+author: "Augustus Ge"
+date: "November 27, 2018"
+output: html_document
+---
+
+# Background
+
+Getting accepted into a top college is becoming increasingly difficult. Choosing the best university to attend is even more challenging. We have decided to scrape data from the top 100 colleges in the United States to gain more of an insight on their acceptance trends and student life through quantitative and qualitative (text mining) data visualization.
+
+This document scrapes niche.com for the application and acceptance information on the top 100 colleges according to Niche and puts it into a data frame from which we analyze.
+
+```{r}
+library(stringr)
+library(rvest)
+library(xml2)
+library(dplyr)
+```
+
+```{r} 
+# Run first
+get_data <- function(name){
+  url1 <-"https://www.niche.com/colleges"
+  url2 <- str_c(url1,"/",name,"/")
+  webpages <- read_html(url2)
+ 
+  name_data =
+  ACT_data =
+  SAT_data =
+  app_fee =
+  ed_ea =
+  app_deadline =
+  undergrad_pop =
+  acceptance_data =
+  annualtuition_data =
+  link_data =
+  SFRatio_data =
+  Eve_data = NA
+  
+  data=c(name_data,ACT_data,SAT_data,ed_ea,app_fee,app_deadline,undergrad_pop, acceptance_data, annualtuition_data,link_data,SFRatio_data,Eve_data)
+  
+  css=c(".postcard__title","#admissions .scalar--three:nth-child(2) .scalar__value span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span","#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)","#admissions .profile__bucket--1 .scalar__value span","#cost .scalar__value span:nth-child(1)",".profile__website__link",".profile-grade+ .scalar--three .scalar__value span","#academics .scalar--three+ .scalar--three .scalar__value span" )
+  
+# Lay the data into a vector  
+for(i in 1:length(data)){
+  data[i]=html_text(html_nodes(webpages,css=css[i]))[1]
+  if(length(data[i]) == 0){
+    data[i] = NA
+  }
+}
+  return(data)
+}
+```
+
+
+
+```{r}
+# Run second
+# This function gets the names of the schools from the first a pages and 
+# puts them in the URL format
+get_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  names=str_replace_all(names," ","-")
+  names=str_replace_all(names, "&", "-and-")
+  return(names)
+}
+get_names(4)
+```
+
+
+
+```{r}
+# Run Third
+# This function simply gives the real names of the schools
+get_real_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  return(names)
+}
+```
+
+
+
+```{r}
+# Run Fourth
+# Initialize data frame
+df <- data.frame(matrix(nrow = 100, ncol = 12))
+# name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data
+colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
+for(i in 1:100){
+  df[i,] <- (get_data(get_names(4)[i]))
+}
+
+# Name the schools properly. Initial data frame creation has unwanted some strings
+df$School <- get_real_names(4)
+```
+
+
+
+```{r}
+# Run Fifth
+# Switch app_deadline and acceptance_data in these rows
+# For some reason on these schools the 6th and the 8th variable have swapped css
+temp = df[grep("%", df$`Application Deadline`),]$`Acceptance Rate`
+df[grep("%", df$`Application Deadline`),]$`Acceptance Rate` = df[grep("%", df$`Application Deadline`),]$`Application Deadline`
+df[grep("%", df$`Application Deadline`),]$`Application Deadline` = temp
+df
+```
+
+
+
+```{r}
+# Add columns of Min & Max ACT and SAT
+df <- df %>%
+  mutate(ACT_MIN = as.numeric(str_sub(df$`ACT Middle 50%`,1,2)))%>%
+  mutate(ACT_MAX = as.numeric(str_sub(df$`ACT Middle 50%`,4,5)))%>%
+  mutate(SAT_MIN = as.numeric(str_sub(df$`SAT Middle 50%`,1,4)))%>%
+  mutate(SAT_MAX = as.numeric(str_sub(df$`SAT Middle 50%`,6,9)))
+```
+
+
+
+```{r}
+# Convert character data to numerical data
+df_plot = df
+df_plot$`Undergraduate Population` = as.numeric(str_replace_all(df_plot$`Undergraduate Population`, ",", ""))
+df_plot$`Application Fee` = as.numeric(gsub("\\$", "", df_plot$`Application Fee`))
+df_plot$`Acceptance Rate` = as.numeric(str_remove_all(df_plot$`Acceptance Rate`, "%"))
+df_plot$`Acceptance Rate` = df_plot$`Acceptance Rate`/100 #This line can just run once!!
+df_plot$`Annual Tuition` = as.numeric(gsub("\\$", "", str_remove_all(df_plot$`Annual Tuition`, ",")))
+df_plot$`Student:Faculty Ratio` = as.numeric(str_remove_all(df_plot$`Student:Faculty Ratio`, ":1"))
+str(df_plot)
+```
+
+
