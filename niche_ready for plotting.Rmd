@@ -55,64 +55,47 @@ get_real_names=function(a){
 
 
 
-```{r}
-# Run First
 
+```{r} 
+# Run first
 get_data <- function(name){
   url1 <-"https://www.niche.com/colleges"
   url2 <- str_c(url1,"/",name,"/")
   webpages <- read_html(url2)
-  name_data <- html_text(html_nodes(webpages, ".postcard__title" ))  
-  ACT_data <- html_text(html_nodes(webpages, "#admissions .scalar--three:nth-child(2) .scalar__value span" ))
-  if(length(ACT_data) == 0) ACT_data <- NA
-  SAT_data <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span"))
-  if(length(SAT_data) == 0) SAT_data <- NA
-  app_fee <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span"))
-  if(length(app_fee) == 0) app_fee <- NA
-  ed_ea <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span"))
-  if(length(ed_ea) == 0) ed_ea <- NA
-  app_deadline <- html_text(html_nodes(webpages, css = "#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span"))
-  if(length(app_deadline) == 0) app_deadline <- NA
-  undergrad_pop <- html_text(html_nodes(webpages, css = "#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)"))
-  if(length(undergrad_pop) == 0) undergrad_pop <- NA
-    acceptance_data <- html_text(html_nodes(webpages, "#admissions .profile__bucket--1 .scalar__value span" ))
-    if(length(acceptance_data) == 0) acceptance_data <- NA
-  annualtuition_data <- html_text(html_nodes(webpages, "#cost .scalar__value span:nth-child(1)" ))
-    if(length(annualtuition_data) == 0) annualtuition_data <- NA
-  link_data <-  html_text(html_nodes(webpages, ".profile__website__link" ))
-    if(length(link_data) == 0) link_data <- NA
-  SFRatio_data <- html_text(html_nodes(webpages, ".profile-grade+ .scalar--three .scalar__value span" ))
-    if(length(SFRatio_data) == 0) SFRatio_data <- NA
-  Eve_data <- html_text(html_nodes(webpages, "#academics .scalar--three+ .scalar--three .scalar__value span" ))
+ 
+  name_data =
+  ACT_data =
+  SAT_data =
+  app_fee =
+  ed_ea =
+  app_deadline =
+  undergrad_pop =
+  acceptance_data =
+  annualtuition_data =
+  link_data =
+  SFRatio_data =
+  Eve_data = NA
   
-  url_review <- str_c(url2,"/reviews/")
-  webpage2<- read_html(url_review)
-  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
+  data=c(name_data,ACT_data,SAT_data,app_fee,ed_ea,app_deadline,undergrad_pop, acceptance_data, annualtuition_data,link_data,SFRatio_data,Eve_data)
   
-  url_review <- str_c(url2,"/reviews/")
-  webpage2<- read_html(url_review)
-  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
-  # print(name_data)
-  # print(ACT_data)
-  # print(SAT_data)
-  # print(ACT_SAT_req)
-  # print(ed_ea)
-  # print(app_fee)
-  # print(app_deadline)
-  # print(undergrad_pop)
-  # print(acceptance_data)
-  # print(annualtuition_data)
-  # print(link_data)
-  # print(SFRatio_data)
-  # print(Eve_data)
-  # print(review_data)
+  css=c(".postcard__title","#admissions .scalar--three:nth-child(2) .scalar__value span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span","#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)","#admissions .profile__bucket--1 .scalar__value span","#cost .scalar__value span:nth-child(1)",".profile__website__link",".profile-grade+ .scalar--three .scalar__value span","#academics .scalar--three+ .scalar--three .scalar__value span" )
   
-  return(c(name_data, ACT_data, SAT_data, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data))
-}
 
+  
+for(i in 1:length(data)){
+  data[i]=html_text(html_nodes(webpages,css=css[i]))[1]
+  if(length(data[i]) == 0){
+    data[i] = NA
+  }
+}
+  return(data)
+
+}
 ```
 
+
 ```{r}
+#test
 get_data("harvard-university") 
 
 ```
