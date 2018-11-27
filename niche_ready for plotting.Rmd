@@ -135,22 +135,22 @@ df$School <- get_real_names(4)
 ```
 
 
+
 ```{r}
 # Run Fifth
 # Switch app_deadline and acceptance_data in these rows
-# For some reason on these schools the 7th and the 9th variable have swapped css
-seq_vec <- c(11, 15, 17, 18, 33, 35, 43, 50, 58, 66, 82, 83, 85, 87, 97, 100)
-temp <- df[seq_vec, 6]
-df[seq_vec, 6] <- df[seq_vec, 8]
-df[seq_vec, 8] <- temp
+# For some reason on these schools the 6th and the 8th variable have swapped css
+temp = df[grep("%", df$`Application Deadline`),]$`Acceptance Rate`
+df[grep("%", df$`Application Deadline`),]$`Acceptance Rate` = df[grep("%", df$`Application Deadline`),]$`Application Deadline`
+df[grep("%", df$`Application Deadline`),]$`Application Deadline` = temp
 
-  
+df
 ```
+
 
 
 ```{r}
 # Add columns of Min & Max ACT and SAT
-library(dplyr)
 df %>%
   mutate(ACT_MIN = as.numeric(str_sub(df$`ACT Middle 50%`,1,2)))%>%
   mutate(ACT_MAX = as.numeric(str_sub(df$`ACT Middle 50%`,4,5)))%>%
