@@ -1,0 +1,37 @@
+---
+title: "Writeup"
+author: "Augustus Ge"
+date: "November 27, 2018"
+output: html_document
+---
+
+# Background
+
+Getting accepted into a top college is becoming increasingly difficult. Choosing the best university to attend is even more challenging. We have decided to scrape data from the top 100 colleges in the United States to gain more of an insight on their acceptance trends and student life through quantitative and qualitative (text mining) data visualization.
+
+Our first task was to webscrape niche.com and create a data frame from which we would analyze college information. This data frame is here:
+
+```{r df}
+
+View(df)
+
+```
+
+Next, we used the ggplot2 package to visualize different trends in the data as well as anything that we might have found interesting.
+
+```{r}
+# Yan's code
+```
+
+
+
+```{r}
+View(ACT_plot)
+View(SAT_plot)
+```
+
+Finally, we know that there is more to colleges than just numbers. We used text mining techniques and sentiment analysis on student reviews to create our own ranking of the schools.
+
+```{r}
+# Chengzhao and Runyu's code
+```
