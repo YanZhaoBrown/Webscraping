@@ -1,0 +1,180 @@
+---
+title: "Text_mining"
+output: html_document
+---
+
+
+
+
+```{r}
+# load usable packages
+library(stringr)
+library(rvest)
+library(xml2)
+#write a function to webscrape 20 reviews of each colleges and save them as reivew 
+get_review <- function(schools){
+  review=vector(length=0,mode="character")
+  for(i in 1:length(schools)){
+    url1 <-"https://www.niche.com/colleges"
+    url2 <- str_c(url1,"/",schools[i],"/")
+    url_review <- str_c(url2,"/reviews/")
+  webpage2 <- read_html(url_review)
+  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
+  review=c(review,review_data)
+  }
+  review
+  }
+
+review <- get_review(get_names(4))
+
+```
+
+```{r}
+#test
+library(stringr)
+get_review_data <- function(name){
+  
+    url1 <-"https://www.niche.com/colleges"
+    url2 <- str_c(url1,"/",name,"/")
+    url_review <- str_c(url2,"/reviews/")
+  webpage2<- read_html(url_review)
+  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
+  return(review_data)
+
+}
+  
+get_review_data("Washington-University-in-St-Louis"  )
+```
+
+```{r}
+# Initialize data frame of reviews, write a for loop to fill the first column by different school names. Save as df_review. 
+
+df_review <- data.frame(id=1:2000,text=review,stringsAsFactors=FALSE)
+ 
+
+ for (i in 1:100){
+ df_review$id[(20*(i-1)+1):(20*i)] <- schools[i]
+}
+
+```
+
+```{r}
+#load useful package for textmining
+install.packages("tidytext")
+library(tidytext)
+library(dplyr)
+
+```
+
+```{r}
+#load ggplot2 
+library(ggplot2)
+```
+
+```{r}
+#seperate each review to single words, elimiate some non-sentimental words and rename the text column as word.
+tidy_review <- df_review %>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)
+
+
+
+#do the inner join with "bing" to create a new data frame that contains only words of sentiment.
+review_sentiment <- tidy_review %>% 
+    # Group by id
+    group_by(id) %>% 
+    # Define a new column review_total
+    mutate(review_total = n()) %>%
+    ungroup()%>%
+    inner_join(get_sentiments("bing"))
+
+
+# see how many world are positive and negative among all review
+pos_neg <-review_sentiment%>%
+    count(sentiment,sort=TRUE)
+    
+#group by by id and word, and count the appearance of different words for each university
+top <- review_sentiment %>% group_by(id,word) %>%
+   summarize(count=n()) %>%
+  arrange(id,desc(count))
+#get top 20 most appear words for each school.
+top20 <- top_n(top,20)
+top20
+  
+
+```
+
+```{r}
+#laod packages
+install.packages("wordcloud")
+library(wordcloud)
+
+```
+
+```{r}
+#load packages
+install.packages("RColorBrewer")
+library(RColorBrewer)
+```
+
+```{r}
+#write a function to visualize the top 20 words for each school
+colors<-brewer.pal(8,"Dark2")
+colors_range<-colorRampPalette(colors)
+
+wordcloud_top20 <- function(x){
+wordcloud(words=filter(top20,id==x)$word,freq=top20$count,min.freq = 1,max.words=100000,random.order=TRUE,rot.per=0.5,col=colors_range(100))
+}
+# test
+
+wordcloud_top20("Brown University")
+wordcloud_top20("Harvard University")
+wordcloud_top20("Massachusetts Institute of Technology")
+
+```
+
+```{r}
+
+#plot proportion of negative vs postive words for each school, we can see that their is no relationship between schools' rank and the proportion of negative vs. positive reviews.
+ggplot(review_sentiment,aes(x=id,fill=sentiment))+geom_bar(position="fill")+labs(x="schools",y="proportion")
+
+
+```
+```{r}
+#do the inner join with "afinn" to create a new data frame that contains only words of sentiment and their score.
+review_score <- tidy_review %>% 
+    # Group by id
+    group_by(id) %>% 
+    # Define a new column review_total
+    mutate(review_total = n()) %>%
+    ungroup()%>%
+    inner_join(get_sentiments("afinn"))
+review_score
+```
+```{r}
+#create a data frame which have the total score of sentiment test for each school
+#create another data frame that have the old rank from niche.com
+school_score <- review_score %>%
+  group_by(id)%>%
+  summarise(total_score=sum(score)) %>%
+  arrange(desc(total_score))
+school_score
+old_rank <- data.frame(id=schools,ori_rank=1:100)
+old_rank
+
+```
+```{r}
+#compare new rank with old rank in a same data frame and displace their ranks' difference
+compare_rank <- full_join(c,d,by="id") %>%
+  mutate(rev_rank=round(rank(desc(total_score)))) %>%
+  mutate(rank_diff=ori_rank-rev_rank)
+compare_rank
+```
+```{r}
+#plot the old rank with the total score, from the plot we can see that the old rank is not associated with the attitude of their review, becasue the p value of the linear regression have a p-value > 0.05, so we fail to reject the null hypothesis. In general, university students tend to put good reviews about their schools, so their reviews may not be very informative for perspective student.
+ggplot(data=compare_rank,aes(x=ori_rank,y=total_score))+geom_point()
+summary(lm(total_score~ori_rank,data=f))
+
+
+```
+
