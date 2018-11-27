@@ -1,0 +1,220 @@
+---
+title: "Scraping_Airline_Data_Outline"
+author: "Augustus Ge"
+date: "November 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+library(rvest)
+library(stringr)
+library(xml2)
+```
+
+
+```{r}
+# Run second
+get_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  names=str_replace_all(names," ","-")
+  names=str_replace_all(names, "&", "-and-")
+  return(names)
+}
+get_names(4)
+
+```
+
+```{r}
+# Run Third
+get_real_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  return(names)
+}
+```
+
+
+
+
+```{r} 
+# Run first
+get_data <- function(name){
+  url1 <-"https://www.niche.com/colleges"
+  url2 <- str_c(url1,"/",name,"/")
+  webpages <- read_html(url2)
+ 
+  name_data =
+  ACT_data =
+  SAT_data =
+  app_fee =
+  ed_ea =
+  app_deadline =
+  undergrad_pop =
+  acceptance_data =
+  annualtuition_data =
+  link_data =
+  SFRatio_data =
+  Eve_data = NA
+  
+  data=c(name_data,ACT_data,SAT_data,app_fee,ed_ea,app_deadline,undergrad_pop, acceptance_data, annualtuition_data,link_data,SFRatio_data,Eve_data)
+  
+  css=c(".postcard__title","#admissions .scalar--three:nth-child(2) .scalar__value span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span","#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)","#admissions .profile__bucket--1 .scalar__value span","#cost .scalar__value span:nth-child(1)",".profile__website__link",".profile-grade+ .scalar--three .scalar__value span","#academics .scalar--three+ .scalar--three .scalar__value span" )
+  
+
+  
+for(i in 1:length(data)){
+  data[i]=html_text(html_nodes(webpages,css=css[i]))[1]
+  if(length(data[i]) == 0){
+    data[i] = NA
+  }
+}
+  return(data)
+
+}
+```
+
+
+```{r}
+#test
+get_data("harvard-university") 
+
+```
+
+
+
+```{r}
+# Run Fourth
+# Initialize data frame
+df <- data.frame(matrix(nrow = 100, ncol = 12))
+# name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data
+colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
+
+for(i in 1:100){
+  df[i,] <- (get_data(get_names(4)[i]))
+}
+ 
+# Name the schools properly. Initial data frame creation has unwanted some strings
+df$School <- get_real_names(4)
+```
+
+
+
+```{r}
+# Run Fifth
+# Switch app_deadline and acceptance_data in these rows
+# For some reason on these schools the 6th and the 8th variable have swapped css
+temp = df[grep("%", df$`Application Deadline`),]$`Acceptance Rate`
+df[grep("%", df$`Application Deadline`),]$`Acceptance Rate` = df[grep("%", df$`Application Deadline`),]$`Application Deadline`
+df[grep("%", df$`Application Deadline`),]$`Application Deadline` = temp
+
+df
+```
+
+
+
+```{r}
+# Add columns of Min & Max ACT and SAT
+df = df %>%
+  mutate(ACT_MIN = as.numeric(str_sub(df$`ACT Middle 50%`,1,2)))%>%
+  mutate(ACT_MAX = as.numeric(str_sub(df$`ACT Middle 50%`,4,5)))%>%
+  mutate(SAT_MIN = as.numeric(str_sub(df$`SAT Middle 50%`,1,4)))%>%
+  mutate(SAT_MAX = as.numeric(str_sub(df$`SAT Middle 50%`,6,9)))
+```
+
+
+```{r}
+#Convert character data to numerical data so that we can use the variables to plot
+df_plot = df
+df_plot$`Undergraduate Population` = as.numeric(str_replace_all(df_plot$`Undergraduate Population`, ",", ""))
+
+df_plot$`Application Fee` = as.numeric(gsub("\\$", "", df_plot$`Application Fee`))
+df_plot$`Acceptance Rate` = as.numeric(str_remove_all(df_plot$`Acceptance Rate`, "%"))
+df_plot$`Acceptance Rate` = df_plot$`Acceptance Rate`/100 #This line can just run once!!
+
+df_plot$`Annual Tuition` = as.numeric(gsub("\\$", "", str_remove_all(df_plot$`Annual Tuition`, ",")))
+df_plot$`Student:Faculty Ratio` = as.numeric(str_remove_all(df_plot$`Student:Faculty Ratio`, ":1"))
+
+#Add two more columns to help plot, one is numerical variable called "ranking" and the other is characteristic variable called "Top 30 or not"
+df_plot$`ranking` = seq(1,100,1)
+df_plot$`Top 30 or not` = c(rep("Yes", 30), rep("No", 70))
+
+str(df_plot)
+
+```
+
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+library(GGally)
+
+#Pair plots for the variables
+df_plot_pair = df_plot %>%
+  select(`ranking`, `ED/EA`, `Application Fee`, `Undergraduate Population`, `Acceptance Rate`, `Annual Tuition`, `Student:Faculty Ratio`, `Evening Degree Programs`, `ACT_MIN`, `ACT_MAX`, `SAT_MIN`, `SAT_MAX`)
+
+ggpairs(df_plot_pair) +
+  labs(title = "Pair plots between variables")
+
+```
+We can see some apparent linear relationship from this pair plot, like `ranking` vs `Acceprance rate` and `SAT_MAX` vs `ACT_MAX`. We will explore more of their relationships in the following plots.
+
+```{r}
+ggplot(df_plot, aes(x =`Application Fee`, fill = `Top 30 or not`)) +
+  geom_bar(aes(binwidth = 5), position = "stack") +
+  labs(title = "Histogram of application fee between Top 30 and non-Top 30")
+```
+From the histogram we can see that some of the non-Top 30 schools have 0 application fees. Top 30 Schools have an overall higher application fees comparing with non-Top 30 schools and they almost follow a normal distribution. 
+
+```{r}
+ggplot(df_plot, aes(x =`Undergraduate Population`, fill = `Top 30 or not`)) +
+  geom_histogram() +
+  labs(title = "Histogram of Undergraduate population between Top 30 and non-Top 30")
+```
+
+From the histogram we can see that non-Top 30 schools have larger range of undergraduate populations. Top 30 schools dont have undergraduates more than 35,000. Overall Top 30 shcools tend to have small undergraduate populations.
+
+```{r}
+ggplot(df_plot, aes(x = `Top 30 or not`, y =`Annual Tuition`, col = `Top 30 or not`)) +
+  geom_jitter(width = 0.2)+
+  labs(title = "Comparison of Annual Tuition between Top 30 and non-Top 30")
+```
+
+From the jitter plot, we can see that there is no clear relationship bwtween Top 30 schools and non-Top 30 schools. They all have the similar mean of Annual tuition with non-Top 30 have larger tuitions range.
+
+```{r}
+ggplot(df_plot, aes(`Acceptance Rate`, `Undergraduate Population`, col =  `Student:Faculty Ratio`)) +
+  geom_point( alpha = 0.5, size = 4) +
+  geom_smooth(method = 'lm', se = F, linetype = 2, size = 1, alpha = 0.5) +
+  labs(title = "Undergraduate Pop vs. Acceptance Rate")
+
+```
+
+We can see a weak linear relationship between Undergraduate population and Acceptance rate. Lower Student Faculty ratio tend to appear at some schools with lower acceptance rate and lower undergraduate populations.
+
+```{r}
+
+ggplot(df_plot, aes(`Acceptance Rate`, `ranking`,fill = `Student:Faculty Ratio`, col = `Evening Degree Programs`)) +
+  geom_point(shape= 21, alpha = 0.6,size = 4) +
+  geom_smooth(method = 'lm', se = F, linetype = 2, size = 1, alpha = 0.5) +
+  labs(title = "Acceptance rate vs. ranking")
+```
+We can see a strong linear relationship between ranking and Acceptance rate. Topper rankings are corresponding with lower Acceptance rate. Student Faculty Ratios and Evening Degree programs appear at different level of schools and no strong relationshops with either ranking or Acceptance Rate.
