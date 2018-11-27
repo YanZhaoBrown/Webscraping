@@ -129,7 +129,7 @@ df
 
 ```{r}
 # Add columns of Min & Max ACT and SAT
-df %>%
+df <- df %>%
   mutate(ACT_MIN = as.numeric(str_sub(df$`ACT Middle 50%`,1,2)))%>%
   mutate(ACT_MAX = as.numeric(str_sub(df$`ACT Middle 50%`,4,5)))%>%
   mutate(SAT_MIN = as.numeric(str_sub(df$`SAT Middle 50%`,1,4)))%>%
