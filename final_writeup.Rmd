@@ -9,29 +9,360 @@ output: html_document
 
 Getting accepted into a top college is becoming increasingly difficult. Choosing the best university to attend is even more challenging. We have decided to scrape data from the top 100 colleges in the United States to gain more of an insight on their acceptance trends and student life through quantitative and qualitative (text mining) data visualization.
 
-Our first task was to webscrape niche.com and create a data frame from which we would analyze college information. This data frame is here:
+# Part 1
 
-```{r df}
+This section scrapes niche.com for the application and acceptance information on the top 100 colleges according to Niche and puts it into a data frame from which we analyze.
 
-View(df)
-
+```{r, echo = FALSE}
+library(stringr)
+library(rvest)
+library(xml2)
+library(dplyr)
+library(RColorBrewer)
+library(GGally)
+library(ggplot2)
+library(wordcloud)
+library(tidytext)
+library(ggthemes)
 ```
+
+
+```{r, echo = FALSE} 
+# Run first
+get_data <- function(name){
+  url1 <-"https://www.niche.com/colleges"
+  url2 <- str_c(url1,"/",name,"/")
+  webpages <- read_html(url2)
+ 
+  name_data =
+  ACT_data =
+  SAT_data =
+  app_fee =
+  ed_ea =
+  app_deadline =
+  undergrad_pop =
+  acceptance_data =
+  annualtuition_data =
+  link_data =
+  SFRatio_data =
+  Eve_data = NA
+  
+  data=c(name_data,ACT_data,SAT_data,ed_ea,app_fee,app_deadline,undergrad_pop, acceptance_data, annualtuition_data,link_data,SFRatio_data,Eve_data)
+  
+  css=c(".postcard__title","#admissions .scalar--three:nth-child(2) .scalar__value span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(1) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(6) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--3 > div > div > div:nth-child(3) > div.scalar__value > span","#admissions > div.profile__buckets > div.profile__bucket--2 > div > div > div > div.scalar__value > span","#students > div.profile__buckets > div.profile__bucket--1 > div > div > div.scalar > div.scalar__value > span:nth-child(1)","#admissions .profile__bucket--1 .scalar__value span","#cost .scalar__value span:nth-child(1)",".profile__website__link",".profile-grade+ .scalar--three .scalar__value span","#academics .scalar--three+ .scalar--three .scalar__value span" )
+  
+# Lay the data into a vector  
+for(i in 1:length(data)){
+  data[i]=html_text(html_nodes(webpages,css=css[i]))[1]
+  if(length(data[i]) == 0){
+    data[i] = NA
+  }
+}
+  return(data)
+}
+```
+
+
+
+```{r, echo = FALSE}
+# Run second
+# This function gets the names of the schools from the first a pages and 
+# puts them in the URL format
+get_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  names=str_replace_all(names," ","-")
+  names=str_replace_all(names, "&", "-and-")
+  names[11] <- "Washington-University-in-St-Louis"
+  return(names)
+}
+get_names(4)
+```
+
+
+
+```{r, echo = FALSE}
+# Run Third
+# This function simply gives the real names of the schools
+get_real_names=function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  return(names)
+}
+```
+
+
+
+```{r, echo = FALSE}
+# Run Fourth
+# Initialize data frame
+df <- data.frame(matrix(nrow = 100, ncol = 12))
+# name_data, ACT_data, SAT_data, ACT_SAT_req, ed_ea, app_fee, app_deadline, undergrad_pop, acceptance_data, annualtuition_data, link_data[1], SFRatio_data, Eve_data
+colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ED/EA", "Application Fee", "Application Deadline", "Undergraduate Population", "Acceptance Rate", "Annual Tuition", "Application Website", "Student:Faculty Ratio", "Evening Degree Programs")
+for(i in 1:100){
+  df[i,] <- (get_data(get_names(4)[i]))
+}
+
+# Name the schools properly. Initial data frame creation has unwanted some strings
+df$School <- get_real_names(4)
+```
+
+
+
+```{r, echo = FALSE}
+# Run Fifth
+# Switch app_deadline and acceptance_data in these rows
+# For some reason on these schools the 6th and the 8th variable have swapped css
+temp = df[grep("%", df$`Application Deadline`),]$`Acceptance Rate`
+df[grep("%", df$`Application Deadline`),]$`Acceptance Rate` = df[grep("%", df$`Application Deadline`),]$`Application Deadline`
+df[grep("%", df$`Application Deadline`),]$`Application Deadline` = temp
+df
+```
+
+
+
+```{r, echo = FALSE}
+# Add columns of Min & Max ACT and SAT
+df <- df %>%
+  mutate(ACT_MIN = as.numeric(str_sub(df$`ACT Middle 50%`,1,2)))%>%
+  mutate(ACT_MAX = as.numeric(str_sub(df$`ACT Middle 50%`,4,5)))%>%
+  mutate(SAT_MIN = as.numeric(str_sub(df$`SAT Middle 50%`,1,4)))%>%
+  mutate(SAT_MAX = as.numeric(str_sub(df$`SAT Middle 50%`,6,9)))
+```
+
+
+
+```{r, echo = FALSE}
+# Convert character data to numerical data
+df_plot = df
+df_plot$`Undergraduate Population` = as.numeric(str_replace_all(df_plot$`Undergraduate Population`, ",", ""))
+df_plot$`Application Fee` = as.numeric(gsub("\\$", "", df_plot$`Application Fee`))
+df_plot$`Acceptance Rate` = as.numeric(str_remove_all(df_plot$`Acceptance Rate`, "%"))
+df_plot$`Acceptance Rate` = df_plot$`Acceptance Rate`/100 #This line can just run once!!
+df_plot$`Annual Tuition` = as.numeric(gsub("\\$", "", str_remove_all(df_plot$`Annual Tuition`, ",")))
+df_plot$`Student:Faculty Ratio` = as.numeric(str_remove_all(df_plot$`Student:Faculty Ratio`, ":1"))
+str(df_plot)
+```
+
+# Part 2
 
 Next, we used the ggplot2 package to visualize different trends in the data as well as anything that we might have found interesting.
 
-```{r}
-# Yan's code
+```{r, echo = FALSE}
+
+df <- df_plot
+
+# Data prepping
+# Grouping schools in ranking by 5s
+ACT_MIN_by_5s <- vector()
+ACT_MAX_by_5s <- vector()
+SAT_MIN_by_5s <- vector()
+SAT_MAX_by_5s <- vector()
+for(i in 1:20){
+  # ACT_MIN_by_5s
+  ACT_MIN_by_5s[i] <- mean(c(df$ACT_MIN[5*(i-1) + 1], df$ACT_MIN[5*(i-1) + 2], df$ACT_MIN[5*(i-1) + 3], df$ACT_MIN[5*(i-1) + 4], df$ACT_MIN[5*(i-1) + 5]), na.rm = TRUE)
+  # ACT_MAX_by_5s
+  ACT_MAX_by_5s[i] <- mean(c(df$ACT_MAX[5*(i-1) + 1], df$ACT_MAX[5*(i-1) + 2], df$ACT_MAX[5*(i-1) + 3], df$ACT_MAX[5*(i-1) + 4], df$ACT_MAX[5*(i-1) + 5]), na.rm = TRUE)
+  # SAT_MIN_by_5s
+  SAT_MIN_by_5s[i] <- mean(c(df$SAT_MIN[5*(i-1) + 1], df$SAT_MIN[5*(i-1) + 2], df$SAT_MIN[5*(i-1) + 3], df$SAT_MIN[5*(i-1) + 4], df$SAT_MIN[5*(i-1) + 5]), na.rm = TRUE)
+  # SAT_MAX_by_5s
+  SAT_MAX_by_5s[i] <- mean(c(df$SAT_MAX[5*(i-1) + 1], df$SAT_MAX[5*(i-1) + 2], df$SAT_MAX[5*(i-1) + 3], df$SAT_MAX[5*(i-1) + 4], df$SAT_MAX[5*(i-1) + 5]), na.rm = TRUE)
+}
+
+# Create this new data frame of standardized test scores corresponding to school rank by 5s
+exam_df_by_5s <- as.data.frame(matrix(nrow = 20, ncol = 5))
+exam_df_by_5s[,1] <- c("1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31-35", "36-40", "41-45", "46-50", "51-55", "56-60", "61-65", "66-70", "71-75", "76-80", "81-85", "86-90", "91-95", "96-100")
+exam_df_by_5s[,2] <- ACT_MIN_by_5s
+exam_df_by_5s[,3] <- ACT_MAX_by_5s
+exam_df_by_5s[,4] <- SAT_MIN_by_5s
+exam_df_by_5s[,5] <- SAT_MAX_by_5s
+colnames(exam_df_by_5s) <- c("School_Rank", "Min_ACT", "Max_ACT", "Min_SAT", "Max_SAT")
+
+# Factor so as to order the x axis 
+exam_df_by_5s$School_Rank <- factor(exam_df_by_5s$School_Rank, levels = exam_df_by_5s[,1])
+
+
 ```
 
 
 
-```{r}
-View(ACT_plot)
-View(SAT_plot)
+```{r, echo = FALSE}
+# Visualizing standardized testing scores by ventile ranking (20 total groups)
+
+ACT_plot <- ggplot(data = exam_df_by_5s, aes(x = School_Rank), width = .1) +
+  geom_errorbar(aes(ymin = exam_df_by_5s$Min_ACT, ymax = exam_df_by_5s$Max_ACT), color = "blue", size = 1.2, alpha = .7) + 
+  labs(title = "ACT Middle 50% Scoring Range", x = "Top 100 Schools Ventiles", y = "ACT Score") +
+  theme_economist() +
+  # Rename by ventile rank
+  scale_x_discrete(labels = c(1:20))
+  
+SAT_plot <- ggplot(data = exam_df_by_5s, aes(x = School_Rank)) +
+  geom_errorbar(aes(ymin = exam_df_by_5s$Min_SAT, ymax = exam_df_by_5s$Max_SAT), color = "blue", size = 1.2, alpha = .7) +
+  labs(title = "SAT Middle 50% Scoring Range", x = "Top 100 Schools Ventiles", y = "SAT Score") +
+  theme_economist() +
+  # Rename by ventile rank
+  scale_x_discrete(labels = c(1:20))
+
+ACT_plot
+SAT_plot
+  
 ```
+
+# Part 3
 
 Finally, we know that there is more to colleges than just numbers. We used text mining techniques and sentiment analysis on student reviews to create our own ranking of the schools.
 
+
+```{r, echo = FALSE}
+
+#write a function to webscrape 20 reviews of each colleges and save them as reivew 
+get_review <- function(schools){
+  review=vector(length=0,mode="character")
+  for(i in 1:length(schools)){
+    url1 <-"https://www.niche.com/colleges"
+    url2 <- str_c(url1,"/",schools[i],"/")
+    url_review <- str_c(url2,"/reviews/")
+  webpage2 <- read_html(url_review)
+  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
+  review=c(review,review_data)
+  }
+  review
+  }
+review <- get_review(get_names(4))
+```
+
+
+
+```{r, echo = FALSE}
+# Initialize data frame of reviews, write a for loop to fill the first column by different school names. Save as df_review. 
+schools <-get_real_names(4)
+df_review <- data.frame(id=1:2000,text=review,stringsAsFactors=FALSE)
+ 
+ for (i in 1:100){
+ df_review$id[(20*(i-1)+1):(20*i)] <- schools[i]
+}
+```
+
+
+
+
+```{r, echo = FALSE}
+#seperate each review to single words, elimiate some non-sentimental words and rename the text column as word.
+tidy_review <- df_review %>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)
+#do the inner join with "bing" to create a new data frame that contains only words of sentiment.
+review_sentiment <- tidy_review %>% 
+    # Group by id
+    group_by(id) %>% 
+    # Define a new column review_total
+    mutate(review_total = n()) %>%
+    ungroup()%>%
+    inner_join(get_sentiments("bing"))
+# see how many world are positive and negative among all review
+pos_neg <-review_sentiment%>%
+    count(sentiment,sort=TRUE)
+    
+#group by by id and word, and count the appearance of different words for each university
+top <- review_sentiment %>% group_by(id,word) %>%
+   summarize(count=n()) %>%
+  arrange(id,desc(count))
+#get top 20 most appear words for each school.
+top20 <- top_n(top,20)
+top20
+  
+```
+
+
+
+```{r, echo = FALSE}
+#write a function to visualize the top 20 words for each school
+colors<-brewer.pal(8,"Dark2")
+colors_range<-colorRampPalette(colors)
+wordcloud_top20 <- function(x){
+wordcloud(words=filter(top20,id==x)$word,freq=top20$count,min.freq = 1,max.words=100000,random.order=TRUE,rot.per=0.5,col=colors_range(100))
+}
+```
+
+Here we have the 20 most common sentimental words used to describe Brown University.
+
+```{r, echo = F}
+wordcloud_top20("Brown University")
+```
+
+Here we have the 20 most common sentimental words used to describe the Massachusetts Institute of Technology.
+
+```{r, echo = F}
+wordcloud_top20("Massachusetts Institute of Technology")
+```
+
+Here we have the 20 most common sentimental words used to describe Texas A&M University, which has the lowest sentiment ranking out of the top 100 schools.
+
 ```{r}
-# Chengzhao and Runyu's code
+wordcloud_top20("Texas A&M University")
+```
+
+We can see that there is no relationship between schools' rank and the proportion of negative vs. positive reviews, which we will anaylyze later on. 
+
+```{r, echo = FALSE}
+#plot proportion of negative vs postive words for each school 
+ggplot(review_sentiment,aes(x=id,fill=sentiment))+geom_bar(position="fill")+labs(x="School Ranking Highest to Lowest",y="Proportion") +
+  scale_x_discrete(labels = c(rep("", 100)))
+```
+
+
+```{r, echo = FALSE}
+#do the inner join with "afinn" to create a new data frame that contains only words of sentiment and their score.
+review_score <- tidy_review %>% 
+    # Group by id
+    group_by(id) %>% 
+    # Define a new column review_total
+    mutate(review_total = n()) %>%
+    ungroup()%>%
+    inner_join(get_sentiments("afinn"))
+# review_score
+```
+
+```{r, echo = FALSE}
+#create a data frame which have the total score of sentiment test for each school
+#create another data frame that have the old rank from niche.com
+school_score <- review_score %>%
+  group_by(id)%>%
+  summarise(total_score=sum(score)) %>%
+  arrange(desc(total_score))
+as.data.frame(school_score)
+old_rank <- data.frame(id=schools,ori_rank=1:100)
+# old_rank
+```
+
+```{r,eval=F, echo = F}
+#compare new rank with old rank in a same data frame and displace their ranks' difference
+
+compare_rank <- full_join(old_rank, school_score, by="id") %>%
+  mutate(rev_rank=round(rank(desc(total_score)))) %>%
+  mutate(rank_diff=ori_rank-rev_rank)
+
+as.data.frame(compare_rank)
+```
+
+From the plot we can see that the old rank is not associated with the attitude of their review, becasue the p value of the linear regression have a p-value > 0.05, so we fail to reject the null hypothesis. In general, university students tend to put good reviews about their schools, so their reviews may not be very informative for perspective student.
+
+```{r,eval=F, echo = F}
+#plot the old rank with the total score
+ggplot(data=compare_rank,aes(x=ori_rank,y=total_score))+
+  labs(title = "Sentiment Score vs Original Rank", x = "Original Rank", y = "Total Sentiment Score") +
+  geom_point()
+summary(lm(total_score~ori_rank,data=compare_rank))
 ```
