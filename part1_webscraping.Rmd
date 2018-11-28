@@ -1,6 +1,6 @@
 ---
 title: "webscraping_niche"
-author: "Augustus Ge"
+author: "Newbility Group"
 date: "November 27, 2018"
 output: html_document
 ---
@@ -18,8 +18,10 @@ library(xml2)
 library(dplyr)
 ```
 
+,
+
 ```{r} 
-# Run first
+# First we scraped data from niche, including colleges' name, ACT & SAT range, application fee, ED/EA, application deadline, undergraduate populations, acceptance rates, annual tuition fees, weblinks, students & professor rates, and evening programs.
 get_data <- function(name){
   url1 <-"https://www.niche.com/colleges"
   url2 <- str_c(url1,"/",name,"/")
@@ -104,7 +106,6 @@ colnames(df) <- c("School", "ACT Middle 50%", "SAT Middle 50%",	"ED/EA", "Applic
 for(i in 1:100){
   df[i,] <- (get_data(get_names(4)[i]))
 }
-
 # Name the schools properly. Initial data frame creation has unwanted some strings
 df$School <- get_real_names(4)
 ```
@@ -118,7 +119,6 @@ df$School <- get_real_names(4)
 temp = df[grep("%", df$`Application Deadline`),]$`Acceptance Rate`
 df[grep("%", df$`Application Deadline`),]$`Acceptance Rate` = df[grep("%", df$`Application Deadline`),]$`Application Deadline`
 df[grep("%", df$`Application Deadline`),]$`Application Deadline` = temp
-df
 ```
 
 
@@ -136,14 +136,17 @@ df <- df %>%
 
 ```{r}
 # Convert character data to numerical data
-df_plot = df
-df_plot$`Undergraduate Population` = as.numeric(str_replace_all(df_plot$`Undergraduate Population`, ",", ""))
-df_plot$`Application Fee` = as.numeric(gsub("\\$", "", df_plot$`Application Fee`))
-df_plot$`Acceptance Rate` = as.numeric(str_remove_all(df_plot$`Acceptance Rate`, "%"))
-df_plot$`Acceptance Rate` = df_plot$`Acceptance Rate`/100 #This line can just run once!!
-df_plot$`Annual Tuition` = as.numeric(gsub("\\$", "", str_remove_all(df_plot$`Annual Tuition`, ",")))
-df_plot$`Student:Faculty Ratio` = as.numeric(str_remove_all(df_plot$`Student:Faculty Ratio`, ":1"))
-str(df_plot)
+df$`Undergraduate Population` = as.numeric(str_replace_all(df$`Undergraduate Population`, ",", ""))
+df$`Application Fee` = as.numeric(gsub("\\$", "", df$`Application Fee`))
+df$`Acceptance Rate` = as.numeric(str_remove_all(df$`Acceptance Rate`, "%"))
+df$`Acceptance Rate` = df$`Acceptance Rate`/100 #This line can just run once!!
+df$`Annual Tuition` = as.numeric(gsub("\\$", "", str_remove_all(df$`Annual Tuition`, ",")))
+df$`Student:Faculty Ratio` = as.numeric(str_remove_all(df$`Student:Faculty Ratio`, ":1"))
+str(df)
 ```
 
 
+```{r}
+#save the df
+saveRDS(df,file="df.Rda")
+```
