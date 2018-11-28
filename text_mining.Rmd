@@ -4,6 +4,39 @@ output: html_document
 ---
 
 
+```{r}
+# write a function to get first 100 names(with "-" as space for future use) of shcools that spread over the first 4 web pages.
+get_names <- function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  names=str_replace_all(names," ","-")
+  names=str_replace_all(names, "&", "-and-")
+  names[11] <- "Washington-University-in-St-Louis"
+  return(names)
+}
+
+# write a function to get the real names of schools
+
+get_real_names <- function(a){
+  names=vector(length=0,mode="character")
+  for(i in 1:a){
+    url=str_c("https://www.niche.com/colleges/search/best-colleges/?page=",i)
+     webpages <- read_html(url)
+     name_data <- html_text(html_nodes(webpages, ".search-result__title" ))  
+     name_data <- as.vector(name_data)
+     names=c(names, name_data)
+  }
+  return(names)
+}
+
+
+```
 
 
 ```{r}
@@ -29,26 +62,11 @@ review <- get_review(get_names(4))
 
 ```
 
-```{r}
-#test
-library(stringr)
-get_review_data <- function(name){
-  
-    url1 <-"https://www.niche.com/colleges"
-    url2 <- str_c(url1,"/",name,"/")
-    url_review <- str_c(url2,"/reviews/")
-  webpage2<- read_html(url_review)
-  review_data <- html_text(html_nodes(webpage2, ".overflow-text__content div" ))
-  return(review_data)
 
-}
-  
-get_review_data("Washington-University-in-St-Louis"  )
-```
 
 ```{r}
 # Initialize data frame of reviews, write a for loop to fill the first column by different school names. Save as df_review. 
-
+schools <-get_real_names(4)
 df_review <- data.frame(id=1:2000,text=review,stringsAsFactors=FALSE)
  
 
@@ -56,11 +74,12 @@ df_review <- data.frame(id=1:2000,text=review,stringsAsFactors=FALSE)
  df_review$id[(20*(i-1)+1):(20*i)] <- schools[i]
 }
 
+
 ```
 
 ```{r}
 #load useful package for textmining
-install.packages("tidytext")
+
 library(tidytext)
 library(dplyr)
 
@@ -106,14 +125,14 @@ top20
 
 ```{r}
 #laod packages
-install.packages("wordcloud")
+
 library(wordcloud)
 
 ```
 
 ```{r}
 #load packages
-install.packages("RColorBrewer")
+
 library(RColorBrewer)
 ```
 
@@ -130,12 +149,14 @@ wordcloud(words=filter(top20,id==x)$word,freq=top20$count,min.freq = 1,max.words
 wordcloud_top20("Brown University")
 wordcloud_top20("Harvard University")
 wordcloud_top20("Massachusetts Institute of Technology")
+wordcloud_top20("The Ohio State University")
+wordcloud_top20("Texas A&M University")# get lowerest sentiment score
 
 ```
 
 ```{r}
 
-#plot proportion of negative vs postive words for each school, we can see that their is no relationship between schools' rank and the proportion of negative vs. positive reviews.
+#plot proportion of negative vs postive words for each school, we can see that their is no relationship between schools' rank and the proportion of negative vs. positive reviews, which we will anaylsis more later.
 ggplot(review_sentiment,aes(x=id,fill=sentiment))+geom_bar(position="fill")+labs(x="schools",y="proportion")
 
 
@@ -163,14 +184,15 @@ old_rank <- data.frame(id=schools,ori_rank=1:100)
 old_rank
 
 ```
-```{r}
+```{r,eval=F}
 #compare new rank with old rank in a same data frame and displace their ranks' difference
+library(dplyr)
 compare_rank <- full_join(c,d,by="id") %>%
   mutate(rev_rank=round(rank(desc(total_score)))) %>%
   mutate(rank_diff=ori_rank-rev_rank)
 compare_rank
 ```
-```{r}
+```{r,eval=F}
 #plot the old rank with the total score, from the plot we can see that the old rank is not associated with the attitude of their review, becasue the p value of the linear regression have a p-value > 0.05, so we fail to reject the null hypothesis. In general, university students tend to put good reviews about their schools, so their reviews may not be very informative for perspective student.
 ggplot(data=compare_rank,aes(x=ori_rank,y=total_score))+geom_point()
 summary(lm(total_score~ori_rank,data=f))
