@@ -1,0 +1,137 @@
+---
+title: "webscraping_niche"
+author: "Newbility Group"
+date: "November 27, 2018"
+output: html_document
+---
+
+This document takes the data from our dataframe and creates several visuals that may be useful or interesting. 
+
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+library(GGally)
+library(ggthemes)
+library(dplyr)
+```
+
+
+```{r}
+df_plot <- readRDS(file="df.Rda")
+```
+
+
+```{r}
+#Add two more columns to help plot, one is numerical variable called "ranking" and the other is characteristic variable called "Top 30 or not"
+df_plot$`ranking` = seq(1,100,1)
+df_plot$`Top 30 or not` = c(rep("Yes", 30), rep("No", 70))
+
+```
+
+
+```{r}
+#Pair plots for the variables
+df_plot_pair = df_plot %>%
+  select(`ranking`, `Application Fee`, `Undergraduate Population`, `Acceptance Rate`, `ACT_MIN`, `SAT_MIN`)
+
+pairs(df_plot_pair, main= "Pair plots between variables")
+```
+
+
+We can see some apparent linear relationship from this pair plot, like `ranking` vs `Acceprance rate` and `ranking` vs `ACT_Min`. We will explore more of their relationships in the following plots.
+
+```{r}
+ggplot(df_plot, aes(x =`Application Fee`, fill = `Top 30 or not`)) +
+  geom_histogram(binwidth = 5,position = "stack") +
+  labs(title = "Histogram of application fee between Top 30 and non-Top 30")
+```
+
+From the histogram we can see that some of the non-Top 30 schools have 0 application fees. Top 30 Schools have an overall higher application fees comparing with non-Top 30 schools and they almost follow a normal distribution. 
+
+```{r}
+ggplot(df_plot, aes(x =`Undergraduate Population`, fill = `Top 30 or not`)) +
+  geom_histogram() +
+  labs(title = "Histogram of Undergraduate population between Top 30 and non-Top 30")
+```
+
+From the histogram we can see that non-Top 30 schools have larger range of undergraduate populations. Top 30 schools dont have undergraduates more than 35,000. Overall Top 30 shcools tend to have small undergraduate populations.
+
+```{r}
+ggplot(df_plot, aes(x = `Top 30 or not`, y =`Annual Tuition`, col = `Top 30 or not`)) +
+  geom_jitter(width = 0.2)+
+  labs(title = "Comparison of Annual Tuition between Top 30 and non-Top 30")
+```
+
+From the jitter plot, we can see that there is no clear relationship bwtween Top 30 schools and non-Top 30 schools. They all have the similar mean of Annual tuition with non-Top 30 have larger tuitions range.
+
+```{r}
+ggplot(df_plot, aes(`Acceptance Rate`, `Undergraduate Population`, col =  `Student:Faculty Ratio`)) +
+  geom_point( alpha = 0.5, size = 4) +
+  geom_smooth(method = 'lm', se = F, linetype = 2, size = 1, alpha = 0.5) +
+  labs(title = "Undergraduate Pop vs. Acceptance Rate")
+
+```
+
+We can see a weak linear relationship between Undergraduate population and Acceptance rate. Lower Student Faculty ratio tend to appear at some schools with lower acceptance rate and lower undergraduate populations.
+
+```{r}
+
+ggplot(df_plot, aes(`Acceptance Rate`, `ranking`,fill = `Student:Faculty Ratio`, col = `Evening Degree Programs`)) +
+  geom_point(shape= 21, alpha = 0.6,size = 4) +
+  geom_smooth(method = 'lm', se = F, linetype = 2, size = 1, alpha = 0.5) +
+  labs(title = "Acceptance rate vs. ranking")
+```
+
+We can see a strong linear relationship between ranking and Acceptance rate. Topper rankings are corresponding with lower Acceptance rate. Student Faculty Ratios and Evening Degree programs appear at different level of schools and no strong relationshops with either ranking or Acceptance Rate.
+
+```{r}
+df <- df_plot
+# Data prepping
+# Grouping schools in ranking by 5s
+ACT_MIN_by_5s <- vector()
+ACT_MAX_by_5s <- vector()
+SAT_MIN_by_5s <- vector()
+SAT_MAX_by_5s <- vector()
+for(i in 1:20){
+  # ACT_MIN_by_5s
+  ACT_MIN_by_5s[i] <- mean(c(df$ACT_MIN[5*(i-1) + 1], df$ACT_MIN[5*(i-1) + 2], df$ACT_MIN[5*(i-1) + 3], df$ACT_MIN[5*(i-1) + 4], df$ACT_MIN[5*(i-1) + 5]), na.rm = TRUE)
+  # ACT_MAX_by_5s
+  ACT_MAX_by_5s[i] <- mean(c(df$ACT_MAX[5*(i-1) + 1], df$ACT_MAX[5*(i-1) + 2], df$ACT_MAX[5*(i-1) + 3], df$ACT_MAX[5*(i-1) + 4], df$ACT_MAX[5*(i-1) + 5]), na.rm = TRUE)
+  # SAT_MIN_by_5s
+  SAT_MIN_by_5s[i] <- mean(c(df$SAT_MIN[5*(i-1) + 1], df$SAT_MIN[5*(i-1) + 2], df$SAT_MIN[5*(i-1) + 3], df$SAT_MIN[5*(i-1) + 4], df$SAT_MIN[5*(i-1) + 5]), na.rm = TRUE)
+  # SAT_MAX_by_5s
+  SAT_MAX_by_5s[i] <- mean(c(df$SAT_MAX[5*(i-1) + 1], df$SAT_MAX[5*(i-1) + 2], df$SAT_MAX[5*(i-1) + 3], df$SAT_MAX[5*(i-1) + 4], df$SAT_MAX[5*(i-1) + 5]), na.rm = TRUE)
+}
+# Create this new data frame of standardized test scores corresponding to school rank by 5s
+exam_df_by_5s <- as.data.frame(matrix(nrow = 20, ncol = 5))
+exam_df_by_5s[,1] <- c("1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31-35", "36-40", "41-45", "46-50", "51-55", "56-60", "61-65", "66-70", "71-75", "76-80", "81-85", "86-90", "91-95", "96-100")
+exam_df_by_5s[,2] <- ACT_MIN_by_5s
+exam_df_by_5s[,3] <- ACT_MAX_by_5s
+exam_df_by_5s[,4] <- SAT_MIN_by_5s
+exam_df_by_5s[,5] <- SAT_MAX_by_5s
+colnames(exam_df_by_5s) <- c("School_Rank", "Min_ACT", "Max_ACT", "Min_SAT", "Max_SAT")
+# Factor so as to order the x axis 
+exam_df_by_5s$School_Rank <- factor(exam_df_by_5s$School_Rank, levels = exam_df_by_5s[,1])
+```
+
+
+
+```{r}
+# Visualizing standardized testing scores by ventile ranking (20 total groups)
+ACT_plot <- ggplot(data = exam_df_by_5s, aes(x = School_Rank), width = .1) +
+  geom_errorbar(aes(ymin = exam_df_by_5s$Min_ACT, ymax = exam_df_by_5s$Max_ACT), color = "blue", size = 1.2, alpha = .7) + 
+  labs(title = "ACT Middle 50% Scoring Range", x = "Top 100 Schools Ventiles", y = "ACT Score") +
+  theme_economist() +
+  # Rename by ventile rank
+  scale_x_discrete(labels = c(1:20))
+  
+SAT_plot <- ggplot(data = exam_df_by_5s, aes(x = School_Rank)) +
+  geom_errorbar(aes(ymin = exam_df_by_5s$Min_SAT, ymax = exam_df_by_5s$Max_SAT), color = "blue", size = 1.2, alpha = .7) +
+  labs(title = "SAT Middle 50% Scoring Range", x = "Top 100 Schools Ventiles", y = "SAT Score") +
+  theme_economist() +
+  # Rename by ventile rank
+  scale_x_discrete(labels = c(1:20))
+ACT_plot
+SAT_plot
+  
+```
